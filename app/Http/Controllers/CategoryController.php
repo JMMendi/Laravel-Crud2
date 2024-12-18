@@ -21,7 +21,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view('categorias.create');
     }
 
     /**
@@ -29,7 +29,26 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // validamos
+        // $request->validate([
+        //     'nombre' => ['required', 'string', 'min:3', 'max:50', 'unique:categories,nombre'],
+        //     'color' => ['required', 'regex:/^#?([a-f0-9]{6}|[a-f0-9]{3})$/']],
+        // Y ahora podemos hacer un array de mensajes de error
+        // [
+        //     'color.regex' => 'El color debe ser una # y seis caracteres hexadecimales'
+        // ]
+        // );
+
+        // ^ ^ ^ Lo dejamos como documentación ya que lo haremos con paquetes
+
+        $request->validate([
+            'nombre' => ['required', 'string', 'min:3', 'max:50', 'unique:categories,nombre'],
+            'color' => ['required', 'color_hex']]);
+        // Si todo sale bien, lo insertamos
+
+        Category::create($request->all());
+        // Nos vamos a index y creamos la alerta del mensaje
+        return redirect()->route('categories.index')->with('mensaje', 'Categoría creada');
     }
 
     /**
@@ -45,7 +64,7 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        //
+        return view('categorias.edit', compact('category'));
     }
 
     /**
@@ -53,7 +72,15 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+        
+        $request->validate([
+            'nombre' => ['required', 'string', 'min:3', 'max:50', 'unique:categories,nombre,'.$category->id],
+            'color' => ['required', 'color_hex']]);
+        
+        // Si todo sale bien, lo modificamos
+        $category->update($request->all());
+        // Nos vamos a index y creamos la alerta del mensaje
+        return redirect()->route('categories.index')->with('mensaje', 'Categoría modificada');
     }
 
     /**
@@ -61,6 +88,9 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        
+        $category->delete();
+
+        return redirect()->route('categories.index')->with('mensaje', 'Categoría eliminada');
     }
 }
